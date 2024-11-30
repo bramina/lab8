@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дневник путешествий</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="mainCode"></div>
+  <form id="travelForm">
+      <label>
+          Country:
+          <br>
+          <select id="countrySelect" ></select>
+      </label>
+      <br>
+      <label>
+          Date:
+          <br>
+          <input type="date" id="travelDate" >
+      </label>
+      <br>
+      <label>
+          Message:
+          <br>
+          <textarea id="travelMessage"></textarea>
+      </label>
+      <button type="submit">Создать</button>
+  </form>
+  <script>
+  let entries = [];
+  const travelForm = document.getElementById('travelForm');
+  const countrySelect = document.getElementById('countrySelect');
+  const mainCode = document.getElementById('mainCode');
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCountries(); 
+    loadEntriesFromLocalStorage(); 
+    });
+
+  function loadCountries() {
+    fetch('https://restcountries.com/v3.1/all')
+        .then(response => response.json())
+        .then(countries => {
+            let options = '';
+            for (const country of countries) {
+                options += `<option>${country.name.common}</option>`;
+            }
+            countrySelect.innerHTML = options;
+        })
+        .catch(() => {
+            console.error('Ошибка при загрузке стран');
+        });
+      }
+    function createEntryElement(entry, index) {
+        const entryDiv = document.createElement('div');
+        entryDiv.classList.add('entry');
+        entryDiv.innerHTML = `
+            <strong>Страна:</strong> ${entry.country}<br>
+            <strong>Дата:</strong> ${entry.date}<br>
+            <strong>Запись:</strong> ${entry.message}<br>
+        `;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Удалить';
+        deleteButton.addEventListener('click', () => deleteEntry(index));
+        
+        entryDiv.appendChild(deleteButton);
+        mainCode.appendChild(entryDiv);
+      }
+    function deleteEntry(index) {
+        if (confirm('Вы действительно хотите удалить эту запись?')) {
+            entries.splice(index, 1);
+            saveEntriesToLocalStorage();
+            renderEntries();
+            }
+        }
+    function saveEntriesToLocalStorage() {
+        localStorage.setItem('travelEntries', JSON.stringify(entries));
+    }
+    function loadEntriesFromLocalStorage() {
+        const savedEntries = localStorage.getItem('travelEntries');
+        if (savedEntries) {
+            entries = JSON.parse(savedEntries);
+            renderEntries();
+        }
+    }
+    function addEntry(entry) {
+        entries.push(entry);
+        saveEntriesToLocalStorage();
+        createEntryElement(entry, entries.length - 1);
+    } 
+    function renderEntries() {
+        mainCode.innerHTML = '';
+        for (let i = 0; i < entries.length; i++) {
+            createEntryElement(entries[i], i);
+        }
+    }
+    travelForm.addEventListener('submit', (event) => {
+        event.preventDefault(); 
+        const entry = {
+            country: countrySelect.value,
+            date: document.getElementById('travelDate').value,
+            message: document.getElementById('travelMessage').value,
+        };
+        addEntry(entry);
+        travelForm.reset();
+    });
+  </script>
+</body>
+</html>
