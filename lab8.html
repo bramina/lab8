@@ -88,12 +88,13 @@
             renderEntries();
         }
     }
+    
     function addEntry(entry) {
         entries.push(entry);
         saveEntriesToLocalStorage();
         createEntryElement(entry, entries.length - 1);
     } 
-    
+
     function renderEntries() {
         mainCode.innerHTML = '';
         for (let i = 0; i < entries.length; i++) {
