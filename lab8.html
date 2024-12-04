@@ -68,7 +68,7 @@
         entryDiv.appendChild(deleteButton);
         mainCode.appendChild(entryDiv);
       }
-      
+
     function deleteEntry(index) {
         if (confirm('Вы действительно хотите удалить эту запись?')) {
             entries.splice(index, 1);
@@ -80,6 +80,7 @@
     function saveEntriesToLocalStorage() {
         localStorage.setItem('travelEntries', JSON.stringify(entries));
     }
+    
     function loadEntriesFromLocalStorage() {
         const savedEntries = localStorage.getItem('travelEntries');
         if (savedEntries) {
